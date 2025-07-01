@@ -1,0 +1,16 @@
+FastAPI
+uvicorn
+SQLAlchemy
+psycopg2-binary
+Celery
+redis
+boto3
+stripe
+python-jose
+pydantic
+alembic
+python-dotenv
+Pillow
+pytest
+pytest-asyncio
+httpx
