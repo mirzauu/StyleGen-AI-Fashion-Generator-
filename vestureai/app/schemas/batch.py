@@ -4,12 +4,10 @@ from datetime import datetime
 
 class BatchCreate(BaseModel):
     task_id: int
-    garment_image_url: str
 
 class Batch(BaseModel):
     id: int
     task_id: int
-    garment_image_url: str
     status: str
     created_at: datetime
 

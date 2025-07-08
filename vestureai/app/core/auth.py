@@ -12,7 +12,9 @@ SECRET_KEY = "your_secret_key"  # Change this to a secure key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token",
+                                         description="Paste your JWT access token here to authorize."
+)
 
 def create_user(user: UserCreate, db: Session):
     db_user = db.query(User).filter(User.email == user.email).first()

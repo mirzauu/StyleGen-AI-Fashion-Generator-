@@ -41,4 +41,5 @@ def generate_images_task(batch_id: int, poses: list):
     """
     Triggers the Celery image generation task asynchronously.
     """
-    return process_image_generation.delay(batch_id)
+    # return process_image_generation.delay(batch_id)
+    pass

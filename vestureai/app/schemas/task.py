@@ -6,16 +6,18 @@ class TaskCreate(BaseModel):
     model_id: int
     name: str
 
-class Task(TaskCreate):
+class TaskBase(BaseModel):
     id: int
     user_id: int
-    created_at: datetime
+    model_id: int
+    name: str
+    created_at: Optional[datetime]
 
     class Config:
         orm_mode = True
 
-class TaskInDB(Task):
+class TaskInDB(TaskBase):
     pass
 
-class TaskResponse(Task):
+class TaskResponse(TaskBase):
     pass
