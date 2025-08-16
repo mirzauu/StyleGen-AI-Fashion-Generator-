@@ -6,5 +6,5 @@ from .subscription import Subscription
 from .model import Model
 from .model_image import ModelImage
 from .task import Task
-from .batch import Batch
+from .batch import Batch,GarmentImage
 from .generated_image import GeneratedImage

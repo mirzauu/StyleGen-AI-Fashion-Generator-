@@ -11,6 +11,9 @@ class Task(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     model_id = Column(Integer, ForeignKey('models.id'))
     name = Column(String, index=True)
+    description = Column(String, nullable=True)  # <-- Add this line
+    pose = Column(String, nullable=True)  # <-- Add this line
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
    
     user = relationship("User", back_populates="tasks")

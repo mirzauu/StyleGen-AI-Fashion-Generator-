@@ -6,7 +6,7 @@ class ModelBase(BaseModel):
     description: Optional[str] = None
 
 class ModelCreate(ModelBase):
-    pass
+    images: List[str] = []
 
 class ModelUpdate(ModelBase):
     pass
@@ -17,6 +17,7 @@ class Model(ModelBase):
 
     class Config:
         orm_mode = True
+        from_attributes=True
 
 class ModelResponse(Model):
     pass

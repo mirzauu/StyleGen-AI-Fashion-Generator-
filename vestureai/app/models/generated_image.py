@@ -6,11 +6,10 @@ class GeneratedImage(Base):
     __tablename__ = 'generated_images'
 
     id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, ForeignKey('batches.id'), nullable=False)
-    model_id = Column(Integer, ForeignKey('models.id'), nullable=False)  # <-- Add this line!
+    garment_image_id = Column(Integer, ForeignKey('garment_images.id'), nullable=False)
+    model_id = Column(Integer, ForeignKey('models.id'), nullable=False)
     output_url = Column(String, nullable=False)
     pose_label = Column(String, nullable=False)
 
-
-    batch = relationship("Batch", back_populates="generated_images")
+    garment_image = relationship("GarmentImage", back_populates="generated_images")
     model = relationship("Model", back_populates="images")

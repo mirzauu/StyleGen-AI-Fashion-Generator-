@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, plans, subscriptions, models, tasks, batches
-
+from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 
 # CORS middleware
@@ -12,7 +12,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+# Mount both folders
+app.mount("/uploaded_garments", StaticFiles(directory="uploaded_garments"), name="uploaded_garments")
+app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 # Include routers
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(plans.router, prefix="/plans", tags=["plans"])
