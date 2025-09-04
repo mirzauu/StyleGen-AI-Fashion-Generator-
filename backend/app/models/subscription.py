@@ -14,3 +14,4 @@ class Subscription(Base):
 
     user = relationship("User", back_populates="subscriptions")
     plan = relationship("Plan", back_populates="subscriptions")
+    transactions = relationship("Transaction", back_populates="subscription")

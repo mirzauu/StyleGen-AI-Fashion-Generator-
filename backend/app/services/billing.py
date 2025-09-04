@@ -3,9 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models.subscription import Subscription
 from app.models.plan import Plan
 from app.core.config import settings
-import stripe
 
-stripe.api_key = "settings.STRIPE_SECRET_KEY"
 
 class BillingService:
     def __init__(self, db: Session):

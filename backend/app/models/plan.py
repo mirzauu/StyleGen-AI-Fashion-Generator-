@@ -13,3 +13,4 @@ class Plan(Base):
 
 
     subscriptions = relationship("Subscription", back_populates="plan")
+    transactions = relationship("Transaction", back_populates="plan")

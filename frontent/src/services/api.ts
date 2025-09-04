@@ -2,7 +2,7 @@ import axios from 'axios';
 import { store } from '../store';
 import { setGlobalError } from '../store/slices/uiSlice';
 
-const API_BASE_URL = 'http://127.0.0.1:9000';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -49,7 +49,7 @@ export const authAPI = {
       password,
     });
     
-    const { access_token, token_type ,subscription_status } = response.data;
+    const { access_token, subscription_status } = response.data;
     
     // Store the access token
     localStorage.setItem('access_token', access_token);
@@ -74,7 +74,7 @@ export const authAPI = {
     // Mock implementation - replace with actual register endpoint when available
     const response = await api.post('/auth/register', { email, password, name });
 
-    const { access_token, token_type } = response.data;
+    const { access_token } = response.data;
 
     // Store the access token
     localStorage.setItem('access_token', access_token);
@@ -254,6 +254,65 @@ export const appAPI = {
         })),
       })),
     }));
+  },
+  // Placeholder: backend will provide this endpoint in future
+  getRemainingImageTokens: async (): Promise<{ remaining: number }> => {
+    try {
+      const response = await api.get('/api/tokens/tokens/balance');
+      const remaining =
+        Number(response.data?.remaining || response.data?.token_balance || response.data?.quota_left) || 0;
+      return { remaining };
+    } catch (e) {
+      return { remaining: 0 };
+    }
+  },
+};
+
+export const userAPI = {
+  getProfile: async (): Promise<{ name: string; isPro: boolean; email?: string }> => {
+    // Fetch basic profile
+    const me = await api.get('/auth/me');
+    const name = me.data?.name || me.data?.username || (me.data?.email ? String(me.data.email).split('@')[0] : 'User');
+    const email = me.data?.email;
+    let isPro = false;
+    // Try to fetch subscription status if available
+   
+    
+    const status = me.data?.status || me.data?.subscription_status;
+    console.log('status:', status);
+    isPro = status === 'active' ? true : false;
+
+    return { name, isPro, email };
+  },
+};
+
+export const paymentsAPI = {
+  createPhonePeOrder: async (
+    amountPaise: number,
+    plan: number,
+    currency: string = 'INR'
+  ): Promise<{ tokenUrl: string; transactionId?: string }> => {
+    const response = await api.post('/api/payments/create-phonepe-order', {
+      amount: amountPaise,
+      plan,
+      currency,
+    });
+    console.log('createPhonePeOrder response:', response.data?.transactionId);
+    // Normalize key just in case backend returns different casing
+    const tokenUrl = response.data?.tokenUrl || response.data?.token_url;
+    const transactionId =
+      response.data?.transactionId ||
+      response.data?.transaction_id ||
+      response.data?.merchantTransactionId ||
+      response.data?.merchant_transaction_id;
+    return { tokenUrl, transactionId };
+  },
+  getPaymentStatus: async (
+    transactionId: string
+  ): Promise<{ status: string }> => {
+    const response = await api.get(`/api/payments/phonepe-order-status/${transactionId}`);
+    const status = response.data?.status || response.data?.payment_status;
+    return { status };
   },
 };
 

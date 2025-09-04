@@ -2,7 +2,8 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { logout } from '../../store/slices/authSlice';
-import { User, LogOut, Crown, HelpCircle, CreditCard, Menu } from 'lucide-react';
+import { User, LogOut, HelpCircle, CreditCard, Menu, Image as ImageIcon, BadgeCheck, Sparkles } from 'lucide-react';
+import { appAPI, userAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import ProPlansPage from '../Plans/ProPlansPage';
 
@@ -29,10 +30,44 @@ const Header: React.FC<HeaderProps> = ({ onUnlockPro, onToggleSidebar }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open]);
   const { user } = useSelector((state: RootState) => state.auth);
+  const [displayName, setDisplayName] = React.useState<string | undefined>(user?.name);
+  const [isProUser, setIsProUser] = React.useState<boolean>(!!user?.isPro);
 
   const handleLogout = () => {
     dispatch(logout());
   };
+
+  const [remainingImages, setRemainingImages] = React.useState<number | null>(null);
+  const [showTokensTooltip, setShowTokensTooltip] = React.useState(false);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const { remaining } = await appAPI.getRemainingImageTokens();
+        if (isMounted) setRemainingImages(remaining);
+      } catch {}
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Fetch user profile for name and pro status
+  React.useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const profile = await userAPI.getProfile();
+        if (!isMounted) return;
+        setDisplayName(profile.name);
+        setIsProUser(profile.isPro);
+      } catch {}
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <header className="bg-white border-b px-2 sm:px-6 py-2 flex items-center justify-between">
@@ -54,23 +89,44 @@ const Header: React.FC<HeaderProps> = ({ onUnlockPro, onToggleSidebar }) => {
       {/* Actions: stack on mobile */}
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
         <div className="flex items-center space-x-4">
-          {user?.isPro && (
-            <div className="flex items-center space-x-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-              <Crown className="w-4 h-4" />
-              <span>Pro Plan</span>
+          {isProUser && (
+            <div className="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-2.5 py-1 rounded-full text-xs font-medium">
+              <BadgeCheck className="w-4 h-4" />
+              <span>Pro</span>
             </div>
           )}
           
-          {!user?.isPro && (
+          {!isProUser && (
             <button
-              onClick={onUnlockPro}
-              className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-yellow-500 hover:to-yellow-700 transition-all duration-200"
+              onClick={() => navigate('/plans')}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:from-indigo-600 hover:to-violet-700 transition-colors"
             >
-              🔓 Unlock Pro Plan
+              <Sparkles className="w-4 h-4" />
+              <span>Go Pro</span>
             </button>
           )}
 
           <div className="flex items-center space-x-3">
+            {/* Remaining tokens */}
+            <div
+              className="relative inline-flex items-center"
+              onMouseEnter={() => setShowTokensTooltip(true)}
+              onMouseLeave={() => setShowTokensTooltip(false)}
+            >
+              <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500/15">
+                <ImageIcon className="w-5 h-5 text-emerald-500" />
+                {typeof remainingImages === 'number' && (
+                  <span className="absolute -top-1 -right-1 text-[10px] leading-none bg-emerald-500 text-white px-1.5 py-0.5 rounded-full">
+                    {remainingImages}
+                  </span>
+                )}
+              </div>
+              {showTokensTooltip && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-64 bg-white text-gray-800 text-sm px-4 py-3 rounded-xl shadow-2xl border border-gray-200 z-50">
+                  You can generate {typeof remainingImages === 'number' ? remainingImages : '0'} amount of image
+                </div>
+              )}
+            </div>
             <div className="relative" ref={menuRef}>
               <button
                 type="button"
@@ -80,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({ onUnlockPro, onToggleSidebar }) => {
                 <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-gray-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">{user?.name}</span>
+                <span className="text-sm font-medium text-gray-700">{displayName || 'User'}</span>
               </button>
               {open && (
                 <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">

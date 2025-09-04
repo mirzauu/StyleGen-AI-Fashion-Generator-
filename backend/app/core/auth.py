@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 SECRET_KEY = "your_secret_key"  # Change this to a secure key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 300000
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token",
                                          description="Paste your JWT access token here to authorize."

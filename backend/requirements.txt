@@ -2,8 +2,6 @@ FastAPI
 uvicorn
 SQLAlchemy
 psycopg2-binary
-Celery
-redis
 boto3
 stripe
 python-jose
@@ -14,3 +12,5 @@ Pillow
 pytest
 pytest-asyncio
 httpx
+fal
+requests

@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import Response
 from starlette.requests import Request
 
-from app.api import auth, plans, subscriptions, models, tasks, batches
+from app.api import auth, plans, subscriptions, models, tasks, batches, payments,token
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -49,6 +49,8 @@ app.include_router(subscriptions.router, prefix="/subscriptions", tags=["subscri
 app.include_router(models.router, prefix="/models", tags=["models"])
 app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 app.include_router(batches.router, prefix="/batches", tags=["batches"])
+app.include_router(payments.router, prefix="/api/payments", tags=["payments"])
+app.include_router(token.router, prefix="/api/tokens", tags=["tokens"])
 
 
 @app.get("/")

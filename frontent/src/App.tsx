@@ -7,7 +7,7 @@ import LoginForm from './components/Auth/LoginForm';
 import RegisterForm from './components/Auth/RegisterForm';
 import Dashboard from './components/Dashboard/Dashboard';
 import ProPlansPage from './components/Plans/ProPlansPage';
-import PayNowPage from './components/Plans/PayNowPage';
+import PaymentSuccessPage from './components/Payment/PaymentSuccessPage';
 import SubscriptionPage from './components/Support/SubscriptionPage';
 import HelpCenterPage from './components/Support/HelpCenterPage';
 import { Toaster } from 'react-hot-toast';
@@ -71,7 +71,8 @@ const App: React.FC = () => {
               }
             />
             <Route path="/plans" element={<ProPlansPage />} />
-            <Route path="/paynow" element={<PayNowPage />} />
+           
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
             <Route path="/account/subscription" element={<SubscriptionPage />} />
             <Route path="/help" element={<HelpCenterPage />} />
           </Routes>

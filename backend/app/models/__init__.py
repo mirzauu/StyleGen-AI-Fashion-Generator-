@@ -8,3 +8,4 @@ from .model_image import ModelImage
 from .task import Task
 from .batch import Batch,GarmentImage
 from .generated_image import GeneratedImage
+from .transaction import Transaction

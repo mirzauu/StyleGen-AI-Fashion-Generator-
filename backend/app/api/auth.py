@@ -57,6 +57,16 @@ def login_for_access_token(
     access_token = create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/me", response_model=UserResponse)
-def read_users_me(current_user: UserResponse = Depends(get_current_user)):
-    return current_user
+@router.get("/me")
+def read_users_me(db: Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
+    subscription = (
+        db.query(Subscription)
+        .filter(Subscription.user_id == current_user.id)
+        .order_by(Subscription.current_period_end.desc())
+        .first()
+    )
+    subscription_status = subscription.status if subscription else None
+    return {
+        "email": current_user.email,
+        "subscription_status": subscription_status,
+    }

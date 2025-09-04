@@ -86,8 +86,8 @@ async def create_batch(request: Request, db: Session = Depends(get_db)):
     db.add(new_batch)
     db.commit()
     db.refresh(new_batch)
-    # Trigger Celery task
-    generate_images_task(new_batch.id, ["front", "side", "back"])
+
+    generate_images_task(new_batch.id, ["front"])
 
     return BatchResponse.model_validate(parse_batch_datetime(new_batch))
 
