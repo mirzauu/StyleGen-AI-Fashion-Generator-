@@ -9,6 +9,8 @@ import os
 from app.models.model_image import ModelImage
 from typing import Optional
 import uuid
+from cloudinary.uploader import upload
+from app.core.cloudinary_config import cloudinary 
 router = APIRouter()
 
 @router.get("/", response_model=list[ModelResponse])
@@ -46,7 +48,7 @@ async def create_model(
     files: list[UploadFile] = File(...),
     db: Session = Depends(get_db)
 ):
-    # Create the model
+    # Create the model entry
     random_name = f"Model-{uuid.uuid4().hex[:8]}"
     random_description = f"Auto-generated model {uuid.uuid4().hex[:6]}"
 
@@ -57,21 +59,20 @@ async def create_model(
 
     logger.info(f"📂 Received {len(files)} file(s)")
 
-    # Save images if provided
-    save_dir = "uploaded_images"
-    os.makedirs(save_dir, exist_ok=True)
-
     if files:
         for file in files:
             logger.info(f"📂 File: {file.filename} | ContentType: {file.content_type}")
 
-            file_location = os.path.join(save_dir, file.filename)
-            with open(file_location, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+            # ✅ Upload directly to Cloudinary
+            upload_result = upload(
+                file.file,
+                folder="my_project_uploads"  # Cloudinary folder name
+            )
 
+            # ✅ Save Cloudinary URL in DB
             model_image = ModelImage(
                 model_id=new_model.id,
-                url=file_location,
+                url=upload_result["secure_url"],
                 pose_label="pose_label"
             )
             db.add(model_image)

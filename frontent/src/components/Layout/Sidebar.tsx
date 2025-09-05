@@ -96,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewTask }) => {
         <div className="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
           {task.modelImages && task.modelImages.length > 0 ? (
   <img
-    src={`http://127.0.0.1:8000/${task.modelImages[0].replace(/\\/g, '/')}`}
+    src={task.modelImages[0]}
     alt={task.name}
     style={{ width: '60px', height: '60px', border: '1px solid #d1d5db' }}
   />

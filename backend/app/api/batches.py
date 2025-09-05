@@ -17,6 +17,8 @@ from pathlib import Path
 from fastapi import Request, UploadFile
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from cloudinary.uploader import upload
+from app.core.cloudinary_config import cloudinary
 
 router = APIRouter()
 
@@ -59,35 +61,31 @@ async def create_batch(request: Request, db: Session = Depends(get_db)):
     if subscription is None or (subscription.status or "").lower() != "active":
         raise HTTPException(status_code=402, detail="Upgrade to pro plan")
 
-    # Get the first file from 'files'
+    # Get all files from 'files'
     upload_files = form.getlist("files")
     if not upload_files:
         raise HTTPException(status_code=400, detail="No file uploaded")
-    file: UploadFile = upload_files[0]
 
-    # Save garment image
-    garment_image_url = await save_garment_image(file)
-
-    # Create batch
+    # Create batch first
     new_batch = Batch(
-    task_id=task_id,
-    status="queued",
-    created_at=datetime.utcnow().isoformat()
-)
-
-    # Create related garment image
-    garment_image = GarmentImage(
-        image_url=garment_image_url
+        task_id=task_id,
+        status="queued",
+        created_at=datetime.utcnow().isoformat()
     )
 
-    # Attach garment image to batch
-    new_batch.garment_images.append(garment_image)
+    # Save each garment image as a separate record linked to the same batch
+    for file in upload_files:
+        garment_image_url = await save_garment_image(file)
+        garment_image = GarmentImage(
+            image_url=garment_image_url
+        )
+        new_batch.garment_images.append(garment_image)
 
     db.add(new_batch)
     db.commit()
     db.refresh(new_batch)
 
-    generate_images_task(new_batch.id, ["front"])
+    generate_images_task(new_batch.id)
 
     return BatchResponse.model_validate(parse_batch_datetime(new_batch))
 
@@ -160,9 +158,11 @@ async def dummy_create_batch(
 
 
 async def save_garment_image(file: UploadFile):
-    save_dir = "uploaded_garments"
-    os.makedirs(save_dir, exist_ok=True)
-    file_location = os.path.join(save_dir, file.filename)
-    with open(file_location, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    return file_location  # Or return a URL if serving files via HTTP
+    # Upload directly to Cloudinary
+    upload_result = upload(
+        file.file,
+        folder="my_project_uploads/garments"  # Cloudinary folder name
+    )
+    
+    # Return the secure URL from Cloudinary
+    return upload_result["secure_url"]

@@ -341,13 +341,36 @@ const MultiStepTaskCreation: React.FC<MultiStepTaskCreationProps> = ({ onTaskCre
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       >
-                        <div className="aspect-square bg-gray-100">
+                        <div className="aspect-square bg-gray-100 relative group">
                           {model.images ? (
-                            <img
-                              src={`http://127.0.0.1:8000/${model.images}`}
-                              alt={model.name}
-                              className="w-full h-full object-cover"
-                            />
+                            <>
+                              <img
+                                src={model.images[0]}
+                                alt={model.name}
+                                className="w-full h-full object-cover"
+                              />
+                              {model.images.length > 1 && (
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
+                                    <div className="flex gap-1">
+                                      {model.images.slice(0, 4).map((image, index) => (
+                                        <img
+                                          key={index}
+                                          src={image}
+                                          alt={`${model.name} ${index + 1}`}
+                                          className="w-12 h-12 object-cover rounded border border-gray-200"
+                                        />
+                                      ))}
+                                      {model.images.length > 4 && (
+                                        <div className="w-12 h-12 bg-gray-200 rounded border border-gray-200 flex items-center justify-center">
+                                          <span className="text-xs font-medium text-gray-600">+{model.images.length - 4}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <div className="w-6 h-6 bg-gray-300 rounded" />
