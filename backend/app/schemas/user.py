@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 class UserCreate(BaseModel):
@@ -25,3 +25,10 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordReset(BaseModel):
+    token: str
+    password: str

@@ -3,8 +3,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { store } from './store';
 import { useAuth } from './hooks/useAuth';
-import LoginForm from './components/Auth/LoginForm';
-import RegisterForm from './components/Auth/RegisterForm';
+import { LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm } from './components/Auth';
 import Dashboard from './components/Dashboard/Dashboard';
 import ProPlansPage from './components/Plans/ProPlansPage';
 import PaymentSuccessPage from './components/Payment/PaymentSuccessPage';
@@ -35,13 +34,20 @@ const AuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const AuthFlow: React.FC = () => {
-  const [isLogin, setIsLogin] = React.useState(true);
+  const [authState, setAuthState] = React.useState<'login' | 'register' | 'forgot-password'>('login');
 
-  return isLogin ? (
-    <LoginForm onSwitchToRegister={() => setIsLogin(false)} />
-  ) : (
-    <RegisterForm onSwitchToLogin={() => setIsLogin(true)} />
-  );
+  if (authState === 'login') {
+    return (
+      <LoginForm 
+        onSwitchToRegister={() => setAuthState('register')} 
+        onSwitchToForgotPassword={() => setAuthState('forgot-password')}
+      />
+    );
+  } else if (authState === 'register') {
+    return <RegisterForm onSwitchToLogin={() => setAuthState('login')} />;
+  } else {
+    return <ForgotPasswordForm onSwitchToLogin={() => setAuthState('login')} />;
+  }
 };
 
 const App: React.FC = () => {
@@ -71,7 +77,7 @@ const App: React.FC = () => {
               }
             />
             <Route path="/plans" element={<ProPlansPage />} />
-           
+            <Route path="/reset-password" element={<ResetPasswordForm />} />
             <Route path="/payment/success" element={<PaymentSuccessPage />} />
             <Route path="/account/subscription" element={<SubscriptionPage />} />
             <Route path="/help" element={<HelpCenterPage />} />

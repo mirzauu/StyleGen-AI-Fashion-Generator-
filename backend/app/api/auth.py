@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-from app.core.auth import get_current_user, create_user, authenticate_user
-from app.schemas.user import UserCreate, UserLogin, UserResponse
+from app.core.auth import get_current_user, create_user, authenticate_user, create_password_reset_token, verify_password_reset_token, send_password_reset_email
+from app.schemas.user import UserCreate, UserLogin, UserResponse, PasswordResetRequest, PasswordReset
 from app.core.config import get_db
 from app.models.subscription import Subscription
+from app.models.user import User
+from app.core.utils import hash_password
 
 router = APIRouter()
 
@@ -70,3 +72,38 @@ def read_users_me(db: Session = Depends(get_db), current_user: UserResponse = De
         "email": current_user.email,
         "subscription_status": subscription_status,
     }
+
+@router.post("/forgot-password")
+def request_password_reset(request: Request, reset_request: PasswordResetRequest, db: Session = Depends(get_db)):
+    # Check if user exists
+    user = db.query(User).filter(User.email == reset_request.email).first()
+    if not user:
+        
+        return {"message": "If your email is registered, you will receive a password reset link"}
+    
+    # Generate JWT token
+    reset_token = create_password_reset_token(user.email)
+    
+    # Get base URL from request
+    base_url = str(request.base_url).rstrip('/')
+    
+    # Send email with reset link
+    email_sent = send_password_reset_email(user.email, reset_token, base_url)
+    
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Failed to send password reset email")
+    
+    return {"message": "If your email is registered, you will receive a password reset link"}
+
+@router.post("/reset-password")
+def reset_password(reset_data: PasswordReset, db: Session = Depends(get_db)):
+    # Verify token and get user
+    user = verify_password_reset_token(reset_data.token, db)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
+    # Update password
+    user.password_hash = hash_password(reset_data.password)
+    db.commit()
+    
+    return {"message": "Password has been reset successfully"}

@@ -12,9 +12,10 @@ interface LoginFormData {
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
+  onSwitchToForgotPassword: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
   const [showPassword, setShowPassword] = React.useState(false);
@@ -109,9 +110,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
               />
               <span className="ml-2 text-sm text-gray-600">Remember me</span>
             </label>
-            <a href="#" className="text-sm text-yellow-600 hover:text-yellow-700 font-medium">
+            <button
+              type="button"
+              onClick={onSwitchToForgotPassword}
+              className="text-sm text-yellow-600 hover:text-yellow-700 font-medium"
+            >
               Forgot password?
-            </a>
+            </button>
           </div>
 
           {/* SUBMIT BUTTON */}

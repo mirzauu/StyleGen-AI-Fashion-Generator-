@@ -3,14 +3,13 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin
 from app.core.utils import hash_password, verify_password
-from app.core.config import get_db
+from app.core.config import get_db, settings
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
-
-SECRET_KEY = "your_secret_key"  # Change this to a secure key
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 300000
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token",
                                          description="Paste your JWT access token here to authorize."
@@ -38,9 +37,9 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -50,7 +49,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
@@ -60,3 +59,56 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
     return user
+
+def create_password_reset_token(email: str):
+    expire = datetime.utcnow() + timedelta(minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES)
+    to_encode = {"sub": email, "exp": expire, "type": "password_reset"}
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+def verify_password_reset_token(token: str, db: Session):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        email: str = payload.get("sub")
+        token_type: str = payload.get("type")
+        
+        if email is None or token_type != "password_reset":
+            return None
+    except JWTError:
+        return None
+        
+    user = db.query(User).filter(User.email == email).first()
+    return user
+
+def send_password_reset_email(email: str, reset_token: str, base_url: str):
+    reset_url = f"{base_url}/reset-password?token={reset_token}"
+    
+    message = MIMEMultipart()
+    message["From"] = settings.EMAIL_FROM
+    message["To"] = email
+    message["Subject"] = "Password Reset Request"
+    
+    body = f"""
+    <html>
+    <body>
+        <h2>Password Reset Request</h2>
+        <p>You requested a password reset. Please click the link below to reset your password:</p>
+        <p><a href="{reset_url}">Reset Password</a></p>
+        <p>If you didn't request this, please ignore this email.</p>
+        <p>This link will expire in {settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES} minutes.</p>
+    </body>
+    </html>
+    """
+    
+    message.attach(MIMEText(body, "html"))
+    
+    try:
+        server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+        server.starttls()
+        server.login(settings.EMAIL_USERNAME, settings.EMAIL_PASSWORD)
+        server.send_message(message)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False

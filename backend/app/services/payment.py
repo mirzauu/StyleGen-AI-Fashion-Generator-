@@ -20,9 +20,9 @@ class PaymentService:
         # Endpoints
         if self.environment == "PROD":
             self.base_url: str = "https://api.phonepe.com"
-            self.oauth_url: str = f"{self.base_url}/apis/pg/v1/oauth/token"
-            self.pay_url: str = f"{self.base_url}/apis/pg/v1/checkout/v2/pay"
-            self.status_url_prefix: str = f"{self.base_url}/apis/pg/v1/checkout/v2/order"
+            self.oauth_url: str = f"{self.base_url}/apis/identity-manager/v1/oauth/token"
+            self.pay_url: str = f"{self.base_url}/apis/pg/checkout/v2/pay"
+            self.status_url_prefix: str = f"{self.base_url}/apis/pg/checkout/v2/order"
         else:
             self.base_url = "https://api-preprod.phonepe.com"
             self.oauth_url = f"{self.base_url}/apis/pg-sandbox/v1/oauth/token"

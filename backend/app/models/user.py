@@ -10,7 +10,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    token_balance = Column(Integer, default=0)
+    token_balance = Column(Integer, default=5)
     token_valid_until = Column(DateTime, default=None, nullable=True)
     
     
