@@ -161,7 +161,7 @@ export const appAPI = {
       garmentType: 'top' as const,
       createdAt: response.data.created_at || new Date().toISOString(),
       updatedAt: response.data.created_at || new Date().toISOString(),
-      pose: response.data.pose,
+      modelImages: response.data.model_images || [],
     };
   },
 

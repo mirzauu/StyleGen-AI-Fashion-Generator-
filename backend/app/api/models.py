@@ -4,6 +4,8 @@ from app.models.model import Model
 from app.schemas.model import ModelCreate, ModelResponse
 from app.core.config import get_db
 from fastapi import Depends
+from app.core.auth import get_current_user
+from app.models.user import User
 import shutil
 import os
 from app.models.model_image import ModelImage
@@ -11,11 +13,18 @@ from typing import Optional
 import uuid
 from cloudinary.uploader import upload
 from app.core.cloudinary_config import cloudinary 
+from sqlalchemy import or_
+
 router = APIRouter()
 
 @router.get("/", response_model=list[ModelResponse])
-def list_models(db: Session = Depends(get_db)):
-    models = db.query(Model).all()
+def list_models(db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    models = db.query(Model).filter(
+        or_(
+            Model.user_id == current_user.id,
+            Model.user_id == 0
+        )
+    ).all()
     result = []
     for model in models:
         images = [
@@ -46,13 +55,14 @@ logger = logging.getLogger("uvicorn")
 @router.post("/", response_model=dict)
 async def create_model(
     files: list[UploadFile] = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     # Create the model entry
     random_name = f"Model-{uuid.uuid4().hex[:8]}"
     random_description = f"Auto-generated model {uuid.uuid4().hex[:6]}"
 
-    new_model = Model(name=random_name, description=random_description)
+    new_model = Model(name=random_name, description=random_description,user_id=current_user.id)
     db.add(new_model)
     db.commit()
     db.refresh(new_model)

@@ -111,9 +111,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewTask }) => {
             <h4 className="text-[13px] font-medium text-gray-900 truncate">{task.name}</h4>
             <ChevronRight className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          <p className={`text-xs ${getStatusColor(task.status)} mt-0.5`}>
+          {/* <p className={`text-xs ${getStatusColor(task.status)} mt-0.5`}>
             {getStatusText(task.status)}
-          </p>
+          </p> */}
           <p className="text-xs text-gray-500 mt-0.5">
             {task.createdAt
               ? format(new Date(task.createdAt), 'MMM d, yyyy')

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { loginUser } from '../../store/slices/authSlice';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import backgroundImage from '/ChatGPT Image Sep 6, 2025, 04_13_57 PM.png';
 
 interface LoginFormData {
   email: string;
@@ -31,7 +32,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSwitchToFor
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: `url(${backgroundImage})` }}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         {/* Logo or brand placeholder */}
         <div className="flex items-center justify-center mb-6 space-x-3">
@@ -40,7 +41,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSwitchToFor
             alt="Logo"
             className="h-12 w-auto"
           />
-           <span className="text-2xl font-extrabold text-yellow-500 select-none">Trylo</span>
+           <span className="text-2xl font-extrabold text-black-500 select-none">Trylo</span>
         </div>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>

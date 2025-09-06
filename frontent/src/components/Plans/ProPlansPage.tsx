@@ -106,30 +106,29 @@ const ProPlansPage: React.FC = () => {
           <p className="mt-3 text-gray-600">Full access. Simple pricing. Cancel anytime.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {/* Basic (Monthly) */}
-          <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm">
+          <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm flex flex-col">
             <div className="bg-[#2F52FF] text-white p-6">
               <h3 className="text-xl font-bold">Basic</h3>
               <p className="text-xs opacity-90 mt-1">Full access monthly. No commitment.</p>
               <div className="flex items-end gap-1 mt-6">
-                <span className="text-4xl font-extrabold">₹299</span>
+                <span className="text-4xl font-extrabold">₹999</span>
                 <span className="text-sm ml-1">/ month</span>
               </div>
             </div>
-            <div className="p-6">
-              <ul className="space-y-3 mb-6 text-gray-700">
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />Billed Monthly</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited recording time</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited recording length</li>
-                <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-purple-600 mt-0.5" />Record audio or phone calls</li>
-                <li className="flex items-start gap-3"><ShieldCheck className="w-5 h-5 text-emerald-600 mt-0.5" />Background recording in iOS</li>
-                <li className="flex items-start gap-3"><BadgeCheck className="w-5 h-5 text-pink-600 mt-0.5" />Best-in-class transcription</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited summary customizations</li>
+            <div className="p-6 flex flex-col flex-grow">
+            <ul className="space-y-3 mb-6 text-gray-700 flex-grow">
+                <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-purple-600 mt-0.5" />Create up to 70 high-quality images</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unused tokens will carry over to future cycles</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />No watermark on generated images</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Supports PNG and JPG export formats</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5" />Generate up to 5 images simultaneously</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Billed Monthly</li>
               </ul>
               <button
                 className="w-full inline-flex justify-center items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-amber-700 active:bg-amber-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => openPhonePeCheckout(1, 29900)}
+                onClick={() => openPhonePeCheckout(1, 99900)}
                 disabled={isLoading}
               >
                 {isLoading ? 'Processing...' : 'Get Basic'}
@@ -138,31 +137,31 @@ const ProPlansPage: React.FC = () => {
           </div>
 
           {/* Pro (Monthly) */}
-          <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm">
+          <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm flex flex-col">
             <div className="bg-[#D9ECF7] text-gray-900 p-6 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1 rounded-full flex items-center gap-1 shadow">
+              <div className="absolute -top-0.4 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1 rounded-full flex items-center gap-1 shadow">
                 <span className="text-yellow-400">✦</span> Popular
               </div>
               <h3 className="text-xl font-bold">Pro</h3>
               <p className="text-xs opacity-80 mt-1">Unlimited access monthly. Simple and flexible.</p>
               <div className="flex items-end gap-1 mt-6">
-                <span className="text-4xl font-extrabold">₹999</span>
+                <span className="text-4xl font-extrabold">₹1,999</span>
                 <span className="text-sm ml-1">/ month</span>
               </div>
             </div>
-            <div className="p-6">
-              <ul className="space-y-3 mb-6 text-gray-700">
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />Billed Monthly</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited recording time</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited recording length</li>
-                <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-purple-600 mt-0.5" />Record audio or phone calls</li>
-                <li className="flex items-start gap-3"><ShieldCheck className="w-5 h-5 text-emerald-600 mt-0.5" />Background recording in iOS</li>
-                <li className="flex items-start gap-3"><BadgeCheck className="w-5 h-5 text-pink-600 mt-0.5" />Best-in-class transcription</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited summary customizations</li>
+            <div className="p-6 flex flex-col flex-grow">
+               <ul className="space-y-3 mb-6 text-gray-700 flex-grow">
+                <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-purple-600 mt-0.5" />Create up to 150 high-quality images</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unused tokens will carry over to future cycles</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />No watermark on generated images</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Supports PNG and JPG export formats</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5" />Generate up to 9 images simultaneously</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-yellow-500 mt-0.5" />Priority processing for faster results</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Billed Monthly</li>
               </ul>
               <button
                 className="w-full inline-flex justify-center items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-amber-700 active:bg-amber-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => openPhonePeCheckout(2, 99900)}
+                onClick={() => openPhonePeCheckout(2, 199900)}
                 disabled={isLoading}
               >
                 {isLoading ? 'Processing...' : 'Get Pro'}
@@ -171,28 +170,29 @@ const ProPlansPage: React.FC = () => {
           </div>
 
           {/* Elite (Monthly) */}
-          <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm relative">
+          <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm relative flex flex-col">
             <div className="bg-gradient-to-br from-pink-500 to-fuchsia-600 text-white p-6">
               <h3 className="text-xl font-bold">Elite</h3>
               <p className="text-xs opacity-90 mt-1">Maximum access and priority everything.</p>
               <div className="flex items-end gap-1 mt-6">
-                <span className="text-4xl font-extrabold">₹1,999</span>
+                <span className="text-4xl font-extrabold">₹3,499</span>
                 <span className="text-sm ml-1">/ month</span>
               </div>
             </div>
-            <div className="p-6">
-              <ul className="space-y-3 mb-6 text-gray-700">
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />Billed Monthly</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited recording time</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited recording length</li>
-                <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-purple-200 mt-0.5" />Record audio or phone calls</li>
-                <li className="flex items-start gap-3"><ShieldCheck className="w-5 h-5 text-emerald-200 mt-0.5" />Background recording in iOS</li>
-                <li className="flex items-start gap-3"><BadgeCheck className="w-5 h-5 text-white mt-0.5" />Best-in-class transcription</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited summary customizations</li>
-              </ul>
+            <div className="p-6 flex flex-col flex-grow">
+              <ul className="space-y-3 mb-6 text-gray-700 flex-grow">
+                <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-purple-600 mt-0.5" />Create up to 400 high-quality images</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unlimited Tokens Validity</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />No watermark on generated images</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Supports PNG and JPG export formats</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5" />Generate up to 12 images simultaneously</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-yellow-500 mt-0.5" />Priority processing for faster results</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-indigo-600 mt-0.5" />Premium customer support included</li>
+                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Billed Monthly</li>
+              </ul>           
               <button
                 className="w-full inline-flex justify-center items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-amber-700 active:bg-amber-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => openPhonePeCheckout(3, 199900)}
+                onClick={() => openPhonePeCheckout(3, 349900)}
                 disabled={isLoading}
               >
                 {isLoading ? 'Processing...' : 'Get Elite'}
@@ -201,27 +201,28 @@ const ProPlansPage: React.FC = () => {
           </div>
 
           {/* Customization */}
-          <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm">
-            <div className="bg-gray-50 text-gray-900 p-6">
-              <h3 className="text-xl font-bold">Customization</h3>
-              <p className="text-xs opacity-80 mt-1">Need higher limits or team seats? We can help.</p>
+        </div>
+          <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm flex flex-col">
+            <div className="bg-gray-50 text-gray-900 p-4">
+              <h3 className="text-lg font-bold">Customization</h3>
+              <p className="text-xs opacity-80 mt-1">Need higher limits? We can help.</p>
             </div>
-            <div className="p-6">
-              <ul className="space-y-3 mb-6 text-gray-700">
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Custom image quotas</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Dedicated support & SLAs</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Onboarding & training</li>
-                <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Web based dashboard</li>
+            <div className="p-4 flex flex-col flex-grow">
+              <ul className="space-y-2 mb-4 text-gray-700 flex-grow">
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />Custom image quotas</li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />Dedicated support</li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />Team onboarding</li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />Api Access</li>
               </ul>
               <button
-                className="w-full inline-flex justify-center items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-black transition-colors shadow-sm"
-                onClick={() => window.open('mailto:sales@example.com', '_blank')}
+                className="w-full inline-flex justify-center items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-black transition-colors shadow-sm text-sm"
+                onClick={() => window.open('mailto:helptrylo@gmail.com', '_blank')}
               >
                 Contact Sales
               </button>
             </div>
+          
           </div>
-        </div>
       </div>
     </div>
   );

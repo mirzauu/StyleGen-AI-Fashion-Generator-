@@ -1,7 +1,7 @@
 import React from 'react';
 
 const HelpCenterPage: React.FC = () => {
-  const email = 'trylo@help.com';
+  const email = 'helptrylo@gmail.com';
   const mailto = `mailto:${email}?subject=Support%20Request&body=Hello%20Trylo%20Support,%0D%0A%0D%0A`;
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">

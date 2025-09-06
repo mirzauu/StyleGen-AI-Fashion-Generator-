@@ -45,7 +45,7 @@ const GarmentUpload: React.FC<GarmentUploadProps> = ({
         
         <div className="flex flex-col items-center space-y-2">
           <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-            <Upload className="w-5 h-5 text-purple-600" />
+            <Upload className="w-5 h-5 text-amber-600" />
           </div>
           
           <div>
@@ -65,7 +65,7 @@ const GarmentUpload: React.FC<GarmentUploadProps> = ({
       {selectedFiles.length > 0 && (
         <div>
           <h4 className="text-xs font-medium text-gray-700 mb-2">
-            Support for Model Images, Mannequin Images, Flat-Lay Images. Video Generation is available now.
+            Support for Model Images, Mannequin Images, Flat-Lay Images.
           </h4>
           
           <div className="flex flex-wrap gap-3">

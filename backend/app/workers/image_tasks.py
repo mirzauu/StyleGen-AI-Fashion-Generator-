@@ -5,6 +5,7 @@ import os
 import time
 import asyncio
 from typing import Dict, List
+from app.models.user import User
 
 def _configure_fal():
     """Configure fal.ai client with API key"""
@@ -30,17 +31,17 @@ def on_queue_update(update):
            print(log["message"])
            
            
-def generate_images_task(batch_id: int):
+def generate_images_task(batch_id: int, curr_user: int):
     """
     Generate fashion try-on images using fal.ai API with long polling
     
     Args:
         batch_id (int): The batch ID to process
-        poses (list): List of poses to generate images for
+        curr_user (int): The current user ID
         
     """
     # Configure fal.ai client
-    
+    fal = _configure_fal()
     
     db = SessionLocal()
     try:
@@ -48,6 +49,11 @@ def generate_images_task(batch_id: int):
         batch = db.query(Batch).filter(Batch.id == batch_id).first()
         if not batch:
             raise ValueError("Batch not found")
+        
+        # Get current user
+        current_user = db.query(User).filter(User.id == curr_user).first()
+        if not current_user:
+            raise ValueError("User not found")
         
         # Update batch status to processing
         batch.status = 'processing'
@@ -128,30 +134,25 @@ def generate_images_task(batch_id: int):
                     try:
                         # Prepare the request payload
                         request_payload = {
-                            
-                                "full_body_image": model_image_url,
-                                "clothing_image": garment_image_url
-                 
-                            }
-                            
-                        
+                            "full_body_image": model_image_url,
+                            "clothing_image": garment_image_url
+                        }
                         
                         # Debug: Print the request payload
                         print(f"Debug - Request payload: {request_payload}")
                         
                         # Call fal.ai fashion try-on API with long polling
-                        # Clean URLs to ensure no extra spaces or backticks
-           
-                        result = fal.subscribe("easel-ai/fashion-tryon", arguments=request_payload,with_logs=True,on_queue_update=on_queue_update,)
-                        print(f"result -  payload: {result}")
-                        # For testing, use a mock result
-                        # result = {'payload': {'image': {'url': "https://images.easelai.com/tryon/woman.webp"}}}
+                        result = fal.subscribe("easel-ai/fashion-tryon", arguments=request_payload, with_logs=True, on_queue_update=on_queue_update)
+                        print(f"result - payload: {result}")
                         
                         # Extract the generated image URL from the result
                         if 'image' in result and 'url' in result['image']:
                             generated_image_url = result['image']['url'].strip().replace('`', '')
                             key = f"garment_{garment_image.id}_model_{model_id}_pose_{pose_label}"
                             generated_images[key] = generated_image_url
+                            
+                            # Deduct token from user balance
+                            current_user.token_balance -= 1
                             
                             # Save to database
                             generated_image = GeneratedImage(
@@ -161,7 +162,7 @@ def generate_images_task(batch_id: int):
                                 pose_label=pose_label
                             )
                             db.add(generated_image)
-                            db.commit()
+                            db.commit()  # This will save both the generated image and the updated token balance
                         
                     except Exception as e:
                         print(f"Error generating image for garment {garment_image.id} with model {model_id} and pose {pose_label}: {str(e)}")

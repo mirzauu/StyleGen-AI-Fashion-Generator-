@@ -30,8 +30,17 @@ def create_task(
     db.commit()
     db.refresh(new_task)
 
-    print("⬅️ Returning task:", new_task.__dict__)
-    return new_task
+    # Get all image URLs for the model
+    model_images = []
+    if new_task.model and hasattr(new_task.model, "model_images"):
+        model_images = [img.url for img in new_task.model.model_images]
+    
+    # Build response dict
+    task_dict = TaskResponse.from_orm(new_task).dict()
+    task_dict["model_images"] = model_images
+
+    print("⬅️ Returning task:", task_dict)
+    return task_dict
 
 
 @router.get("/{task_id}", response_model=TaskResponse)

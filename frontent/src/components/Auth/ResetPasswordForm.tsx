@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 import { authAPI } from '../../services/api';
 import { useNavigate, useLocation } from 'react-router-dom';
+import backgroundImage from '/ChatGPT Image Sep 6, 2025, 04_13_57 PM.png';
 
 interface ResetPasswordFormData {
   password: string;
@@ -67,7 +68,7 @@ const ResetPasswordForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: `url(${backgroundImage})` }}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         {/* Logo or brand placeholder */}
         <div className="flex items-center justify-center mb-6 space-x-3">

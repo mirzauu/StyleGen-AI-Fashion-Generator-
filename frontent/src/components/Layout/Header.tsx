@@ -109,11 +109,12 @@ const Header: React.FC<HeaderProps> = ({ onUnlockPro, onToggleSidebar }) => {
           <div className="flex items-center space-x-3">
             {/* Remaining tokens */}
             <div
-              className="relative inline-flex items-center"
+              className="relative inline-flex items-center cursor-pointer"
               onMouseEnter={() => setShowTokensTooltip(true)}
               onMouseLeave={() => setShowTokensTooltip(false)}
+              onClick={() => navigate('/plans')}
             >
-              <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500/15">
+              <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 transition-colors">
                 <ImageIcon className="w-5 h-5 text-emerald-500" />
                 {typeof remainingImages === 'number' && (
                   <span className="absolute -top-1 -right-1 text-[10px] leading-none bg-emerald-500 text-white px-1.5 py-0.5 rounded-full">

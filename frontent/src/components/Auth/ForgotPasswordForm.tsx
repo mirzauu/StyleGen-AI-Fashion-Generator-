@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Mail } from 'lucide-react';
 import { authAPI } from '../../services/api';
+import backgroundImage from '/ChatGPT Image Sep 6, 2025, 04_13_57 PM.png';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -38,7 +39,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSwitchToLogin
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: `url(${backgroundImage})` }}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         {/* Logo or brand placeholder */}
         <div className="flex items-center justify-center mb-6 space-x-3">

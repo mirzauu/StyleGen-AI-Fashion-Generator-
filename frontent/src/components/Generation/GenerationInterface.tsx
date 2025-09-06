@@ -66,6 +66,10 @@ const GenerationInterface: React.FC<GenerationInterfaceProps> = ({ onBack }) => 
       // Do not immediately refetch here; we will refetch after 1 minute to allow processing time
     } catch (error) {
       console.error('Generation failed:', error);
+      // Stop loading immediately on error
+      setIsGenerating(false);
+      setShowLoading(false);
+      return;
     }
 
     setRecentBatchId(batchId);
@@ -139,12 +143,12 @@ const GenerationInterface: React.FC<GenerationInterfaceProps> = ({ onBack }) => 
                   <button
                     onClick={handleGenerate}
                     disabled={!canGenerate}
-                    className="px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+                    className="px-8 py-3 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
                   >
                     {isGenerating
                       ? (
                         <span className="flex items-center gap-2">
-                          <span className="w-5 h-5 border-2 border-white border-t-purple-600 rounded-full animate-spin"></span>
+                          <span className="w-5 h-5 border-2 border-white border-t--600 rounded-full animate-spin"></span>
                           Generating...
                         </span>
                       )

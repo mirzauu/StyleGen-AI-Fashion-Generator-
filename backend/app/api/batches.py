@@ -9,6 +9,8 @@ from app.core.config import get_db
 import os
 import shutil
 from datetime import datetime
+from app.core.auth import get_current_user
+from app.models.user import User
 from typing import List
 from fastapi import Body
 import base64
@@ -40,10 +42,16 @@ def parse_batch_datetime(batch):
     return batch_dict
 
 
+
+# Update the create_batch function
 @router.post("/", response_model=BatchResponse)
-async def create_batch(request: Request, db: Session = Depends(get_db)):
+async def create_batch(request: Request, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
     form = await request.form()
     
+     # Get task_id from frontend
+    if current_user.token_balance <= 0:
+        raise HTTPException(status_code=403, detail="Your token balance is zero or below. Please purchase a plan to continue using this service.")
+
     # Get task_id from frontend
     task_id = int(form.get("task_id"))
 
@@ -61,10 +69,28 @@ async def create_batch(request: Request, db: Session = Depends(get_db)):
     if subscription is None or (subscription.status or "").lower() != "active":
         raise HTTPException(status_code=402, detail="Upgrade to pro plan")
 
+    # Get model images count from task's model
+    model_images_count = 0
+    if task.model and task.model.model_images:
+        model_images_count = len(task.model.model_images)
+    
+    if model_images_count == 0:
+        raise HTTPException(status_code=400, detail="No model images found for this task's model")
+
     # Get all files from 'files'
     upload_files = form.getlist("files")
     if not upload_files:
         raise HTTPException(status_code=400, detail="No file uploaded")
+
+    # Calculate required tokens: number of garment images × number of model images
+    required_tokens = len(upload_files) * model_images_count
+    
+    # Check if user has enough tokens
+    if current_user.token_balance < required_tokens:
+        raise HTTPException(
+            status_code=403, 
+            detail=f"Insufficient tokens. Required: {required_tokens}, Available: {current_user.token_balance}"
+        )
 
     # Create batch first
     new_batch = Batch(
@@ -85,9 +111,11 @@ async def create_batch(request: Request, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_batch)
 
-    generate_images_task(new_batch.id)
+    generate_images_task(new_batch.id,current_user.id)
 
     return BatchResponse.model_validate(parse_batch_datetime(new_batch))
+
+  
 
 @router.get("/{batch_id}", response_model=BatchResponse)
 def get_batch(batch_id: int, db: Session = Depends(get_db)):
