@@ -85,7 +85,7 @@ def request_password_reset(request: Request, reset_request: PasswordResetRequest
     reset_token = create_password_reset_token(user.email)
     
     # Get base URL from request
-    base_url = str(request.base_url).rstrip('/')
+    base_url = 'app.trylo.space'
     
     # Send email with reset link
     email_sent = send_password_reset_email(user.email, reset_token, base_url)
