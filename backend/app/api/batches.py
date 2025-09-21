@@ -60,14 +60,14 @@ async def create_batch(request: Request, db: Session = Depends(get_db),current_u
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    subscription = (
-        db.query(Subscription)
-        .filter(Subscription.user_id == task.user_id)
-        .order_by(Subscription.current_period_end.desc())
-        .first()
-    )
-    if subscription is None or (subscription.status or "").lower() != "active":
-        raise HTTPException(status_code=402, detail="Upgrade to pro plan")
+    # subscription = (
+    #     db.query(Subscription)
+    #     .filter(Subscription.user_id == task.user_id)
+    #     .order_by(Subscription.current_period_end.desc())
+    #     .first()
+    # )
+    # if subscription is None or (subscription.status or "").lower() != "active":
+    #     raise HTTPException(status_code=402, detail="Upgrade to pro plan")
 
     # Get model images count from task's model
     model_images_count = 0

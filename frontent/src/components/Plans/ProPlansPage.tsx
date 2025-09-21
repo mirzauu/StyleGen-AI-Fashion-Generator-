@@ -1,9 +1,19 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { CheckCircle, Image as ImageIcon, ShieldCheck, BadgeCheck, Crown } from 'lucide-react';
+import { CheckCircle, Image as ImageIcon, Crown } from 'lucide-react';
 import { paymentsAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
-// PhonePe callback moved inside component to access state and navigation
+const STATIC_PAYMENT_URL = 'https://trylo.space/payment';
+
+function redirectToStaticPayment(planId: number, amountPaise: number) {
+  const accessToken = localStorage.getItem('access_token');
+  const params = new URLSearchParams({
+    planId: planId.toString(),
+    amount: amountPaise.toString(),
+    token: btoa(accessToken || ''), // Base64 encoding for demonstration only
+  });
+  window.location.href = `${STATIC_PAYMENT_URL}?${params.toString()}`;
+}
 
 const ProPlansPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +34,6 @@ const ProPlansPage: React.FC = () => {
           const { status } = await paymentsAPI.getPaymentStatus(txId);
           console.log('Payment status:', status);
         }
-        
       } catch (e) {
         console.error('Failed to verify payment status:', e);
       } finally {
@@ -35,7 +44,6 @@ const ProPlansPage: React.FC = () => {
 
   // Initialize PhonePe Checkout script
   useEffect(() => {
-    // Add PhonePe Checkout script to the page
     const script = document.createElement('script');
     script.src = 'https://mercury.phonepe.com/web/bundle/checkout.js';
     script.async = true;
@@ -45,7 +53,6 @@ const ProPlansPage: React.FC = () => {
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup script on component unmount
       const existingScript = document.querySelector('script[src*="checkout.js"]');
       if (existingScript) {
         existingScript.remove();
@@ -56,13 +63,11 @@ const ProPlansPage: React.FC = () => {
   const openPhonePeCheckout = async (plan: number, amountPaise: number) => {
     setIsLoading(true);
     try {
-      // Call backend via services to create payment and get tokenUrl
       const { tokenUrl, transactionId } = await paymentsAPI.createPhonePeOrder(amountPaise, plan=plan, 'INR');
       console.log('Transaction ID from create order:', transactionId);
       setTransactionId(transactionId);
       transactionIdRef.current = transactionId;
 
-      // Open PhonePe PayPage in iframe mode
       if ((window as any).PhonePeCheckout) {
         (window as any).PhonePeCheckout.transact({
           tokenUrl,
@@ -70,7 +75,6 @@ const ProPlansPage: React.FC = () => {
           type: "IFRAME"
         });
       } else {
-        // Fallback: try shortly after if SDK hasn't attached yet
         const id = setInterval(() => {
           if ((window as any).PhonePeCheckout) {
             clearInterval(id);
@@ -118,7 +122,7 @@ const ProPlansPage: React.FC = () => {
               </div>
             </div>
             <div className="p-6 flex flex-col flex-grow">
-            <ul className="space-y-3 mb-6 text-gray-700 flex-grow">
+              <ul className="space-y-3 mb-6 text-gray-700 flex-grow">
                 <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-purple-600 mt-0.5" />Create up to 70 high-quality images</li>
                 <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unused tokens will carry over to future cycles</li>
                 <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />No watermark on generated images</li>
@@ -128,7 +132,7 @@ const ProPlansPage: React.FC = () => {
               </ul>
               <button
                 className="w-full inline-flex justify-center items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-amber-700 active:bg-amber-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => openPhonePeCheckout(1, 99900)}
+                onClick={() => redirectToStaticPayment(1, 99900)}
                 disabled={isLoading}
               >
                 {isLoading ? 'Processing...' : 'Get Basic'}
@@ -150,7 +154,7 @@ const ProPlansPage: React.FC = () => {
               </div>
             </div>
             <div className="p-6 flex flex-col flex-grow">
-               <ul className="space-y-3 mb-6 text-gray-700 flex-grow">
+              <ul className="space-y-3 mb-6 text-gray-700 flex-grow">
                 <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-purple-600 mt-0.5" />Create up to 150 high-quality images</li>
                 <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Unused tokens will carry over to future cycles</li>
                 <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />No watermark on generated images</li>
@@ -161,7 +165,7 @@ const ProPlansPage: React.FC = () => {
               </ul>
               <button
                 className="w-full inline-flex justify-center items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-amber-700 active:bg-amber-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => openPhonePeCheckout(2, 199900)}
+                onClick={() => redirectToStaticPayment(2, 199900)}
                 disabled={isLoading}
               >
                 {isLoading ? 'Processing...' : 'Get Pro'}
@@ -189,10 +193,10 @@ const ProPlansPage: React.FC = () => {
                 <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-yellow-500 mt-0.5" />Priority processing for faster results</li>
                 <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-indigo-600 mt-0.5" />Premium customer support included</li>
                 <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />Billed Monthly</li>
-              </ul>           
+              </ul>
               <button
                 className="w-full inline-flex justify-center items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-amber-700 active:bg-amber-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => openPhonePeCheckout(3, 349900)}
+                onClick={() => redirectToStaticPayment(3, 349900)}
                 disabled={isLoading}
               >
                 {isLoading ? 'Processing...' : 'Get Elite'}
@@ -201,7 +205,6 @@ const ProPlansPage: React.FC = () => {
           </div>
 
           {/* Customization */}
-        </div>
           <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm flex flex-col">
             <div className="bg-gray-50 text-gray-900 p-4">
               <h3 className="text-lg font-bold">Customization</h3>
@@ -221,8 +224,8 @@ const ProPlansPage: React.FC = () => {
                 Contact Sales
               </button>
             </div>
-          
           </div>
+        </div>
       </div>
     </div>
   );

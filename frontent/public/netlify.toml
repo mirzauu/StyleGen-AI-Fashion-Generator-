@@ -1,0 +1,17 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+# Handle SPA routing - redirect all non-file requests to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/reset-password"
+  to = "/reset-password"
+  status = 301
+  force = true
+
+
