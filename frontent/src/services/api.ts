@@ -265,6 +265,12 @@ export const appAPI = {
       })),
     }));
   },
+  downloadBatchZip: async (batchId: string): Promise<Blob> => {
+    const response = await api.get(`/batches/${batchId}/download`, {
+      responseType: 'blob',
+    });
+    return response.data as Blob;
+  },
   // Placeholder: backend will provide this endpoint in future
   getRemainingImageTokens: async (): Promise<{ remaining: number }> => {
     try {

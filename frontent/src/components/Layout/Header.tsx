@@ -102,7 +102,7 @@ const Header: React.FC<HeaderProps> = ({ onUnlockPro, onToggleSidebar }) => {
               className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:from-indigo-600 hover:to-violet-700 transition-colors"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Go Pro</span>
+              <span>Upgrade</span>
             </button>
           )}
 

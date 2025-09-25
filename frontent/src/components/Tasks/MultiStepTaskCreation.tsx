@@ -20,15 +20,25 @@ interface MultiStepTaskCreationProps {
   onCancel: () => void;
 }
 
+const ModelSkeleton: React.FC = () => (
+  <div className="relative rounded-md overflow-hidden border-2 border-gray-300">
+    <div className="aspect-square bg-gray-200 animate-pulse"></div>
+    <div className="absolute bottom-0 left-0 right-0 bg-gray-300 p-1">
+      <div className="h-3 bg-gray-400 rounded animate-pulse"></div>
+    </div>
+  </div>
+);
+
 const MultiStepTaskCreation: React.FC<MultiStepTaskCreationProps> = ({ onTaskCreated, onCancel }) => {
   const dispatch: AppDispatch = useDispatch();
-  const { models } = useSelector((state: RootState) => state.app);
+  const { models, loading } = useSelector((state: RootState) => state.app);
   const [selectedModelType, setSelectedModelType] = React.useState<'upload' | 'existing' | 'template' | ''>('');
   const [selectedGarmentType, setSelectedGarmentType] = React.useState<'top' | 'bottom' | 'onepiece' | null>(null);
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
   const [dragActive, setDragActive] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [isUploadingModel, setIsUploadingModel] = React.useState(false);
+  const [isLoadingModels, setIsLoadingModels] = React.useState(false);
 
   const {
     register,
@@ -41,9 +51,15 @@ const MultiStepTaskCreation: React.FC<MultiStepTaskCreationProps> = ({ onTaskCre
   const watchedName = watch('name');
 
   React.useEffect(() => {
-    if (models.length === 0) {
-      dispatch(fetchModels());
-    }
+    const fetchData = async () => {
+      if (models.length === 0) {
+        setIsLoadingModels(true);
+        await dispatch(fetchModels());
+        setIsLoadingModels(false);
+      }
+    };
+    
+    fetchData();
   }, [models.length, dispatch]);
 
   const filteredModels = models.filter(model =>
@@ -323,70 +339,92 @@ const MultiStepTaskCreation: React.FC<MultiStepTaskCreationProps> = ({ onTaskCre
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
                         placeholder="Search..."
+                        disabled={loading || isLoadingModels}
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-4 gap-3 max-h-96 overflow-y-auto rounded-md border border-gray-200 p-2">
-                    {filteredModels.map((model) => (
-                      <div
-                        key={model.id}
-                        onClick={() => {
-                          setValue('modelId', model.id);
-                          setSelectedModelType('existing');
-                          setValue('modelType', 'existing');
-                        }}
-                        className={`relative cursor-pointer rounded-md overflow-hidden border-2 transition-all ${
-                          watch('modelId') === model.id 
-                            ? 'border-amber-600' 
-                            : 'border-gray-300 hover:border-gray-400'
-                        }`}
-                      >
-                        <div className="aspect-square bg-gray-100 relative group">
-                          {model.images ? (
-                            <>
-                              <img
-                                src={model.images[0]}
-                                alt={model.name}
-                                className="w-full h-full object-cover"
-                              />
-                              {model.images.length > 1 && (
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
-                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
-                                    <div className="flex gap-1">
-                                      {model.images.slice(0, 4).map((image, index) => (
-                                        <img
-                                          key={index}
-                                          src={image}
-                                          alt={`${model.name} ${index + 1}`}
-                                          className="w-12 h-12 object-cover rounded border border-gray-200"
-                                        />
-                                      ))}
-                                      {model.images.length > 4 && (
-                                        <div className="w-12 h-12 bg-gray-200 rounded border border-gray-200 flex items-center justify-center">
-                                          <span className="text-xs font-medium text-gray-600">+{model.images.length - 4}</span>
-                                        </div>
-                                      )}
+                    {(loading || isLoadingModels) ? (
+                      // Loading skeleton animation for models
+                      <>
+                        {[...Array(8)].map((_, index) => (
+                          <ModelSkeleton key={index} />
+                        ))}
+                      </>
+                    ) : filteredModels.length === 0 ? (
+                      // Empty state
+                      <div className="col-span-4 text-center py-8">
+                        <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-sm text-gray-500">
+                          {searchTerm ? 'No models match your search' : 'No models available'}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {searchTerm ? 'Try adjusting your search terms' : 'Upload a model to get started'}
+                        </p>
+                      </div>
+                    ) : (
+                      // Actual models
+                      filteredModels.map((model) => (
+                        <div
+                          key={model.id}
+                          onClick={() => {
+                            setValue('modelId', model.id);
+                            setSelectedModelType('existing');
+                            setValue('modelType', 'existing');
+                          }}
+                          className={`relative cursor-pointer rounded-md overflow-hidden border-2 transition-all ${
+                            watch('modelId') === model.id 
+                              ? 'border-amber-600' 
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                        >
+                          <div className="aspect-square bg-gray-100 relative group">
+                            {model.images ? (
+                              <>
+                                <img
+                                  src={model.images[0]}
+                                  alt={model.name}
+                                  className="w-full h-full object-cover"
+                                />
+                                {model.images.length > 1 && (
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
+                                      <div className="flex gap-1">
+                                        {model.images.slice(0, 4).map((image, index) => (
+                                          <img
+                                            key={index}
+                                            src={image}
+                                            alt={`${model.name} ${index + 1}`}
+                                            className="w-12 h-12 object-cover rounded border border-gray-200"
+                                          />
+                                        ))}
+                                        {model.images.length > 4 && (
+                                          <div className="w-12 h-12 bg-gray-200 rounded border border-gray-200 flex items-center justify-center">
+                                            <span className="text-xs font-medium text-gray-600">+{model.images.length - 4}</span>
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <div className="w-6 h-6 bg-gray-300 rounded" />
+                                )}
+                              </>
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <div className="w-6 h-6 bg-gray-300 rounded" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
+                            <p className="text-white text-xs font-medium truncate">{model.name}</p>
+                          </div>
+                          {watch('modelId') === model.id && (
+                            <div className="absolute top-1 right-1 w-5 h-5 bg-amber-600 rounded-full flex items-center justify-center">
+                              <Check className="w-3 h-3 text-white" />
                             </div>
                           )}
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
-                          <p className="text-white text-xs font-medium truncate">{model.name}</p>
-                        </div>
-                        {watch('modelId') === model.id && (
-                          <div className="absolute top-1 right-1 w-5 h-5 bg-amber-600 rounded-full flex items-center justify-center">
-                            <Check className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               )}

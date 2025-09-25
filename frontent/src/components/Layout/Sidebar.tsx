@@ -10,12 +10,37 @@ interface SidebarProps {
   onNewTask: () => void;
 }
 
+const TaskSkeleton: React.FC = () => (
+  <div className="p-2 rounded-md border border-transparent">
+    <div className="flex items-start space-x-2">
+      {/* Thumbnail Skeleton */}
+      <div className="w-16 h-16 rounded-md bg-gray-200 animate-pulse"></div>
+      
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          {/* Title Skeleton */}
+          <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+        </div>
+        {/* Date Skeleton */}
+        <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2 mt-2"></div>
+      </div>
+    </div>
+  </div>
+);
+
 const Sidebar: React.FC<SidebarProps> = ({ onNewTask }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { tasks, currentTask } = useSelector((state: RootState) => state.app);
+  const { tasks, currentTask, loading } = useSelector((state: RootState) => state.app);
+  const [isInitialLoad, setIsInitialLoad] = React.useState(true);
 
   React.useEffect(() => {
-    dispatch(fetchTasks());
+    const fetchData = async () => {
+      setIsInitialLoad(true);
+      await dispatch(fetchTasks());
+      setIsInitialLoad(false);
+    };
+    
+    fetchData();
   }, [dispatch]);
 
   const handleTaskClick = (task: Task) => {
@@ -80,52 +105,63 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewTask }) => {
             />
           </div>
 
-         <div className="space-y-1">
-  {tasks.map((task) => (
-    <div
-      key={task.id}
-      onClick={() => handleTaskClick(task)}
-      className={`p-2 rounded-md cursor-pointer transition-all duration-200 group ${
-        currentTask?.id === task.id
-          ? 'bg-purple-100 border border-purple-200'
-          : 'hover:bg-gray-100 border border-transparent'
-      }`}
-    >
-      <div className="flex items-start space-x-2">
-        {/* Thumbnail Image */}
-        <div className="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
-          {task.modelImages && task.modelImages.length > 0 ? (
-  <img
-    src={task.modelImages[0]}
-    alt={task.name}
-    style={{ width: '60px', height: '60px', border: '1px solid #d1d5db' }}
-  />
-) : (
-  <Image className="w-4 h-4 text-gray-400" />
-)}
+          <div className="space-y-1">
+            {(loading || isInitialLoad) ? (
+              // Loading skeleton animation
+              <>
+                {[...Array(6)].map((_, index) => (
+                  <TaskSkeleton key={index} />
+                ))}
+              </>
+            ) : tasks.length === 0 ? (
+              // Empty state
+              <div className="text-center py-8">
+                <Image className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-sm text-gray-500">No tasks found</p>
+                <p className="text-xs text-gray-400 mt-1">Create your first model to get started</p>
+              </div>
+            ) : (
+              // Actual tasks
+              tasks.map((task) => (
+                <div
+                  key={task.id}
+                  onClick={() => handleTaskClick(task)}
+                  className={`p-2 rounded-md cursor-pointer transition-all duration-200 group ${
+                    currentTask?.id === task.id
+                      ? 'bg-purple-100 border border-purple-200'
+                      : 'hover:bg-gray-100 border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-start space-x-2">
+                    {/* Thumbnail Image */}
+                    <div className="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                      {task.modelImages && task.modelImages.length > 0 ? (
+                        <img
+                          src={task.modelImages[0]}
+                          alt={task.name}
+                          style={{ width: '60px', height: '60px', border: '1px solid #d1d5db' }}
+                        />
+                      ) : (
+                        <Image className="w-4 h-4 text-gray-400" />
+                      )}
+                    </div>
 
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <h4 className="text-[13px] font-medium text-gray-900 truncate">{task.name}</h4>
-            <ChevronRight className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-[13px] font-medium text-gray-900 truncate">{task.name}</h4>
+                        <ChevronRight className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {task.createdAt
+                          ? format(new Date(task.createdAt), 'MMM d, yyyy')
+                          : 'No date'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-          {/* <p className={`text-xs ${getStatusColor(task.status)} mt-0.5`}>
-            {getStatusText(task.status)}
-          </p> */}
-          <p className="text-xs text-gray-500 mt-0.5">
-            {task.createdAt
-              ? format(new Date(task.createdAt), 'MMM d, yyyy')
-              : 'No date'}
-          </p>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-
-
         </div>
       </div>
     </div>

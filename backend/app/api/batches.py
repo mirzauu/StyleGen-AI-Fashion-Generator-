@@ -21,6 +21,10 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from cloudinary.uploader import upload
 from app.core.cloudinary_config import cloudinary
+from fastapi.responses import StreamingResponse
+import io
+import zipfile
+import requests
 
 router = APIRouter()
 
@@ -123,6 +127,54 @@ def get_batch(batch_id: int, db: Session = Depends(get_db)):
     if not batch:
         raise HTTPException(status_code=404, detail="Batch not found")
     return BatchResponse.model_validate(parse_batch_datetime(batch))
+
+@router.get("/{batch_id}/download")
+def download_batch_zip(batch_id: int, db: Session = Depends(get_db)):
+    batch = db.query(Batch).filter(Batch.id == batch_id).first()
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+
+    # Collect all generated image URLs for the batch
+    image_urls: List[str] = []
+    for garment in batch.garment_images:
+        for gen in garment.generated_images:
+            if gen.output_url:
+                image_urls.append(gen.output_url)
+
+    if not image_urls:
+        raise HTTPException(status_code=404, detail="No generated images found for this batch")
+
+    def iter_zip():
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for idx, url in enumerate(image_urls, start=1):
+                try:
+                    # Stream each image from its URL
+                    resp = requests.get(url, stream=True, timeout=20)
+                    resp.raise_for_status()
+                    # Guess extension from URL path
+                    ext = ".jpg"
+                    path_lower = url.split("?")[0].lower()
+                    if path_lower.endswith((".png", ".jpeg", ".jpg", ".webp")):
+                        for candidate in [".png", ".jpeg", ".jpg", ".webp"]:
+                            if path_lower.endswith(candidate):
+                                ext = candidate
+                                break
+                    filename = f"image_{idx}{ext}"
+                    # Read content fully into memory for writing into zip
+                    content = resp.content
+                    zf.writestr(filename, content)
+                except Exception:
+                    # Skip failed downloads silently
+                    continue
+        zf.close()
+        buffer.seek(0)
+        yield from buffer
+
+    headers = {
+        "Content-Disposition": f"attachment; filename=batch_{batch_id}.zip"
+    }
+    return StreamingResponse(iter_zip(), media_type="application/zip", headers=headers)
 
 from app.models import Batch, GeneratedImage
 from app.schemas import BatchResponse

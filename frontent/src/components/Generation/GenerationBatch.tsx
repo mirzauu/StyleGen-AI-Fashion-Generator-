@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
+// import { useSelector } from 'react-redux';
+// import { RootState } from '../../store';
 import { GenerationBatch as GenerationBatchType } from '../../types';
 import { Download, Star, Share2, Image, ChevronDown } from 'lucide-react';
+import { appAPI } from '../../services/api';
 import { format } from 'date-fns';
 
 interface GenerationBatchProps {
@@ -11,7 +12,7 @@ interface GenerationBatchProps {
 }
 
 const GenerationBatch: React.FC<GenerationBatchProps> = ({ batch, batchNumber }) => {
-  const { user } = useSelector((state: RootState) => state.auth);
+  // const { user } = useSelector((state: RootState) => state.auth);
   const [isExpanded, setIsExpanded] = useState(true);
   const [zoomedImageUrl, setZoomedImageUrl] = useState<string | null>(null);
 
@@ -50,6 +51,22 @@ const GenerationBatch: React.FC<GenerationBatchProps> = ({ batch, batchNumber })
     }
   };
 
+  const handleDownloadBatchZip = async () => {
+    try {
+      const blob = await appAPI.downloadBatchZip(batch.id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `batch-${batchNumber}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to download batch zip', e);
+    }
+  };
+
   const getStatusText = (status: string) => {
     switch (status) {
       case 'completed':
@@ -68,7 +85,7 @@ const GenerationBatch: React.FC<GenerationBatchProps> = ({ batch, batchNumber })
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4">
         <div className="flex items-center justify-between w-full p-6 pb-0">
           <div className="flex items-center space-x-4">
             <button
@@ -92,6 +109,14 @@ const GenerationBatch: React.FC<GenerationBatchProps> = ({ batch, batchNumber })
           </div>
           <div className="flex items-center space-x-2 text-sm text-gray-500">
             <span className="text-xs">Created: {format(new Date(batch.createdAt), 'MMM d, HH:mm')}</span>
+            <button
+              onClick={handleDownloadBatchZip}
+              className="ml-3 inline-flex items-center px-3 py-1.5 rounded-md bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+              title="Download all images in this batch as ZIP"
+            >
+              <Download className="w-4 h-4 mr-1" />
+              Download ZIP
+            </button>
           </div>
         </div>
       </div>
